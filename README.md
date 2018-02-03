@@ -2,7 +2,9 @@
 
 This Ruby script will generate preview images and clips for video files using the `ffmpeg` utility. By default it will generate a 5x6 grid of images from every 1 second of video, with each image being 120px tall. For example:
 
-https://i.imgur.com/pY4O1Tm.jpg
+
+![An example of the generated image](https://i.imgur.com/pY4O1Tm.jpg "An example of the generated image")
+
 
 This will (eventually) be posted to a Mattermost channel so people there can see the content of the video that's been added. These previews can have a variety of uses, for example:
 
@@ -30,7 +32,7 @@ $ mattermost-video-preview.rb video_file.mp4
 
 This will put a message to the specified channel showing that the file was found.
 
-https://i.imgur.com/BWkSdPT.png
+![An example of the message posted](https://i.imgur.com/BWkSdPT.png "An example of the message posted")
 
 Once this is done it will eventually put the image in the channel
 
