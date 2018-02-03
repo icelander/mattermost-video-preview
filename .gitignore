@@ -1,7 +1,7 @@
 *.mp4
 *.MP4
 *.MOV
-transcode_config.yaml
+video_preview_config.yaml
 
 ## MACOS GITIGNORE - https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
 # General
