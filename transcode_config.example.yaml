@@ -1,0 +1,8 @@
+MattermostUrl: http://your.mattermost.server./hooks/your_webook_code
+WatchDirectory: '/directory/to/monitory'
+DefaultPayload:
+  channel: your_channel
+  username: alternate_username
+  icon_url: your user's icon (optional)
+login_id: username
+password: password
