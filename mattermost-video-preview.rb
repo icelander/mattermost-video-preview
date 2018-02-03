@@ -2,6 +2,7 @@
 require 'json'
 require 'yaml'
 require 'rest_client'
+require 'mediainfo'
 
 ###
 # Configuration
@@ -92,6 +93,15 @@ def generate_previews(filename)
 	take_frames_once_this_many_seconds = '1'
 	framegrab_grid = '5x6'
 	framegrab_height = '120'
+
+	file_info = Mediainfo.new filename
+	puts file_info.inspect
+	# What info would you like to have in this?
+	# Let's see
+	# 	- file_size = 82.4 MiB
+	# 	- duration = 35 s 767 ms
+	#   - 
+	abort
 
 	message = "### Gadzooks!\nWe found the file! #{base_filename} Give me a minute to generate a preview."
 	call_mattermost({:text => message})

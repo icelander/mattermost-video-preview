@@ -14,10 +14,10 @@ This will (eventually) be posted to a Mattermost channel so people there can see
 
 ## Dependencies
 
-This script uses the fantastic [RestClient](https://github.com/rest-client/rest-client) library. You can get it like this:
+This script uses the fantastic [RestClient](https://github.com/rest-client/rest-client) and [MediaInfo](https://github.com/greatseth/mediainfo) gems. You'll need to install those, as well as the `mediainfo` command line utility.
 
 ```
-$ gem install rest-client
+# gem install rest-client medianfo
 ```
 
 ## Usage Instructions
