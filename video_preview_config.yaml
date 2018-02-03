@@ -1,0 +1,8 @@
+MattermostUrl: http://localhost:8065/hooks/4s1zrt83iib88c95u19gfqz99e
+WatchDirectory: '/angrydome/home/paul/transcode'
+DefaultPayload:
+  channel: farnsworth
+  username: farnsworth
+  icon_url: https://i.imgur.com/hsUBcr7.png
+login_id: paul
+password: SxUfK2!&r8ih

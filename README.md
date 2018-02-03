@@ -1,0 +1,48 @@
+# mattermost-video-preview
+
+This Ruby script will generate preview images and clips for video files using the `ffmpeg` utility. By default it will generate a 5x6 grid of images from every 1 second of video, with each image being 120px tall. For example:
+
+https://i.imgur.com/pY4O1Tm.jpg
+
+This will (eventually) be posted to a Mattermost channel so people there can see the content of the video that's been added. These previews can have a variety of uses, for example:
+
+ - Reviewing user-generated video as it's being generated
+ - Curating a video library
+ - Creating preview images for posting on a website automatically
+
+## Dependencies
+
+This script uses the fantastic [RestClient](https://github.com/rest-client/rest-client) library. You can get it like this:
+
+```
+$ gem install rest-client
+```
+
+## Usage Instructions
+
+First, create the file `video_preview_config.yaml` using `video_preview_config.example.yaml` as an example.
+
+Next, call the script and pass the video file as the first parameter. For example
+
+```
+$ mattermost-video-preview.rb video_file.mp4
+```
+
+This will put a message to the specified channel showing that the file was found.
+
+https://i.imgur.com/BWkSdPT.png
+
+Once this is done it will eventually put the image in the channel
+
+## Version History
+
+ - **0.0.1 - Initial release**
+
+## Future Features
+
+1. Posting image file to Mattermost
+2. Specifying time interval, image dimensions, and grid size via arguments
+3. Add filename and date of render to images
+4. Detect video length and automatically 
+5. Generating a preview video rather than images
+6. Add the ability to trigger other webhooks for post-processing images

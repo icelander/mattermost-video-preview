@@ -6,7 +6,7 @@ require 'rest_client'
 ###
 # Configuration
 # 
-# Stored in a file named transcode_config.yaml
+# Stored in a file named video-preview-config.yaml
 # Here's an example:                                    
 # 	MattermostUrl: https://mattermost.example.com/hooks/1yfTV9pYML26dLjsWp8QZrvu2W
 # 	WatchDirectory: '/home/user/transcode'
@@ -15,7 +15,7 @@ require 'rest_client'
 # 	  username: Transcode Notifier
 # 	  icon_url: https://i.imgur.com/hsUBcr7.png
 ###
-Config = YAML::load_file('transcode_config.yaml')
+Config = YAML::load_file('video-preview-config.yaml')
 
 
 # Calls mattermost using the default Mattermost URL and the 
@@ -65,7 +65,7 @@ def upload_file (filename, video_filename)
 		:payload => {
 			:multipart => true,
 			:file => File.new(filename, 'rb'),
-			:channel_id => DefaultPayload['channel']
+			:channel_id => Config['DefaultPayload']['channel'],
 			:filename => video_filename
 		},
 		:headers => headers
