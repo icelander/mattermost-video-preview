@@ -6,7 +6,7 @@ require 'rest_client'
 ###
 # Configuration
 # 
-# Stored in a file named video-preview-config.yaml
+# Stored in a file named video_preview_config.yaml
 # Here's an example:                                    
 # 	MattermostUrl: https://mattermost.example.com/hooks/1yfTV9pYML26dLjsWp8QZrvu2W
 # 	WatchDirectory: '/home/user/transcode'
@@ -15,14 +15,15 @@ require 'rest_client'
 # 	  username: Transcode Notifier
 # 	  icon_url: https://i.imgur.com/hsUBcr7.png
 ###
-Config = YAML::load_file('video-preview-config.yaml')
+Config = YAML::load_file('video_preview_config.yaml')
 
-
-# Calls mattermost using the default Mattermost URL and the 
+###
+# Calls mattermost using the default Mattermost URL from the configuration
 # 
 # * data is a hash containing the data to send. Note that channel, username, and icon_url are reserved
 # * url is the Mattermost URL defined above. This can be overridden for debugging
 # * header is the default headers. This shouldn't need modified, but it's nice to have
+###
 def call_mattermost (data = {}, url = Config["MattermostUrl"], header = {'Content-Type': 'text/json'})
 	
 	if !data.has_key?(:login_id)
@@ -53,12 +54,10 @@ end
 def upload_file (filename, video_filename)
 	files = {"files": open(filename, 'rb'), "filename": "#{video_filename} Preview"}
 
-	# First, we authenticate it
 	bearer_token = get_auth_token()
 	
 	headers = {'Authorization' => "Bearer #{bearer_token}"}
 
-	# RestClient.post 'http://localhost:3000/foo', fields_hash.merge(:file => File.new('/path/to/file'))
 	request = RestClient::Request.new(
 		:method => :post,
 		:url => 'http://localhost:8065/api/v4/files',
@@ -66,12 +65,13 @@ def upload_file (filename, video_filename)
 			:multipart => true,
 			:file => File.new(filename, 'rb'),
 			:channel_id => Config['DefaultPayload']['channel'],
-			:filename => video_filename
+			:filename => video_filename,
+			:username => Config['DefaultPayload']['username'],
+			:icon_url => Config['DefaultPayload']['icon_url']
 		},
 		:headers => headers
 	)
 
-	# response = RestClient.post 'http://localhost:8065/api/v4/files', content.merge({:file => File.new(filename, 'rb'), :filename => "#{video_filename} Preview"}), headers
 	begin
 		response = request.execute
 	rescue => e
@@ -93,9 +93,9 @@ def generate_previews(filename)
 	framegrab_grid = '5x6'
 	framegrab_height = '120'
 
-	# message = "### Gadzooks!\nWe found the file! #{base_filename} Give me a minute to generate a preview."
-	# call_mattermost({:text => message})
-	# ffmpeg -y -i "/angrydome/home/paul/transcode/S01E01 - Winter Is Coming.avi" video_preview.jpg
+	message = "### Gadzooks!\nWe found the file! #{base_filename} Give me a minute to generate a preview."
+	call_mattermost({:text => message})
+
 	command = "ffmpeg -y -i \"#{filename}\" -frames 1 -q:v 1 -vf \"select='isnan(prev_selected_t)+gte(t-prev_selected_t\," + take_frames_once_this_many_seconds + ")',scale=-1:" + framegrab_height + ",tile=" + framegrab_grid + "\" '/tmp/video_preview.jpg'"
 	# puts command
 	upload_file('/tmp/video_preview.jpg', base_filename)

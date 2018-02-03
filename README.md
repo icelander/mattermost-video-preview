@@ -34,7 +34,12 @@ This will put a message to the specified channel showing that the file was found
 
 ![An example of the message posted](https://i.imgur.com/BWkSdPT.png "An example of the message posted")
 
-Once this is done it will eventually put the image in the channel
+Once this is done it will eventually put the image in the channel.
+
+A couple ideas for using this:
+
+ - Post-process file uploads from your web app
+ - Monitor a fileserver directory using something like [incron](http://inotify.aiken.cz/?section=incron&page=about&lang=en) to generate thumbnails automatically
 
 ## Version History
 
