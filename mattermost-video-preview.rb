@@ -141,7 +141,7 @@ def generate_previews(filename, framegrab_grid='5x6', framegrab_interval=0, fram
 	# abort
 	message = "|#{base_filename}|\n"
 	message+= "|---|---:|\n"
-	message+= "|File Size| **#{filesize}**|\n"
+	message+= "|File Size| **#{pretty_filesize}**|\n"
 	message+= "|Duration| **#{pretty_duration}**|\n"
 	message+= "|Format| **#{file_info.format}**|";
 
