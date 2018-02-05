@@ -84,30 +84,55 @@ def upload_file (filename, video_filename)
 	# puts response
 end
 
-
 # Generates previews for each movie file in the transcode directory
 
-def generate_previews(filename)
+def generate_previews(filename, framegrab_grid='5x6', framegrab_interval=0, framegrab_height='120')
+	
 	base_filename = File.basename(filename)
-
-	take_frames_once_this_many_seconds = '1'
-	framegrab_grid = '5x6'
-	framegrab_height = '120'
-
+	filesize = File.size(filename)
 	file_info = Mediainfo.new filename
-	puts file_info.inspect
+
+	if framegrab_interval == 0
+		puts 'Calculating framegrab_interval'
+		total_images = 1
+		framegrab_grid.split('x').each do |x|
+			total_images *= x.to_i
+		end
+		framegrab_interval = file_info.duration / total_images
+	end
+	
+	# puts file_info.inspect
 	# What info would you like to have in this?
 	# Let's see
+	#   - FILENAME
 	# 	- file_size = 82.4 MiB
 	# 	- duration = 35 s 767 ms
-	#   - 
-	abort
+	#   - Resolution = height + scan_type
 
-	message = "### Gadzooks!\nWe found the file! #{base_filename} Give me a minute to generate a preview."
+	# puts Mediainfo.supported_attributes
+	# abort
+
+	# d = file_info.duration.strftime "%H:%M:%S.%L"
+
+	puts "Filesize #{filesize}"
+	puts "Duration: #{file_info.duration}"
+	puts file_info.format
+
+
+	message = "|#{base_filename}|\n"
+	message+= "|---|---:|\n"
+	message+= "|File Size| **#{filesize}**|\n"
+	message+= "|Duration| **#{file_info.duration}**|\n"
+	message+= "|Format| **#{file_info.format}**|";
+
+	# message = "### Gadzooks!\nWe found the file! #{base_filename} Give me a minute to generate a preview."
 	call_mattermost({:text => message})
 
-	command = "ffmpeg -y -i \"#{filename}\" -frames 1 -q:v 1 -vf \"select='isnan(prev_selected_t)+gte(t-prev_selected_t\," + take_frames_once_this_many_seconds + ")',scale=-1:" + framegrab_height + ",tile=" + framegrab_grid + "\" '/tmp/video_preview.jpg'"
-	# puts command
+
+	# abort
+	command = "ffmpeg -y -i \"#{filename}\" -frames 1 -q:v 1 -vf \"select='isnan(prev_selected_t)+gte(t-prev_selected_t\," + framegrab_interval.to_s + ")',scale=-1:" + framegrab_height + ",tile=" + framegrab_grid + "\" '/tmp/video_preview.jpg'"
+	puts command
+	abort
 	upload_file('/tmp/video_preview.jpg', base_filename)
 	###
 	# if system(command)
