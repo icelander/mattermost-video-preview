@@ -43,13 +43,13 @@ A couple ideas for using this:
 
 ## Version History
 
- - **0.0.1 - Initial release**
+ - **0.0.2 - Now automatically sets interval based on video length. Sends useful output to Mattermost including filename, duration, file size, and format**
+ - 0.0.1 - Initial release
 
 ## Future Features
 
 1. Posting image file to Mattermost
 2. Specifying time interval, image dimensions, and grid size via arguments
 3. Add filename and date of render to images
-4. Detect video length and automatically 
 5. Generating a preview video rather than images
 6. Add the ability to trigger other webhooks for post-processing images
