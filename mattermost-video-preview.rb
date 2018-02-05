@@ -61,7 +61,7 @@ def upload_file (filename, video_filename)
 
 	request = RestClient::Request.new(
 		:method => :post,
-		:url => 'http://localhost:8065/api/v4/files',
+		:url => 'http://192.168.1.100:8065/api/v4/files',
 		:payload => {
 			:multipart => true,
 			:file => File.new(filename, 'rb'),
@@ -93,7 +93,6 @@ def generate_previews(filename, framegrab_grid='5x6', framegrab_interval=0, fram
 	file_info = Mediainfo.new filename
 
 	if framegrab_interval == 0
-		puts 'Calculating framegrab_interval'
 		total_images = 1
 		framegrab_grid.split('x').each do |x|
 			total_images *= x.to_i
@@ -113,16 +112,37 @@ def generate_previews(filename, framegrab_grid='5x6', framegrab_interval=0, fram
 	# abort
 
 	# d = file_info.duration.strftime "%H:%M:%S.%L"
+	count = 0
+	units = ['bytes', 'KB', 'MB', 'GB', 'TB']
+	loop do
+		break if filesize < 1024.0
+		count += 1
+		filesize /= 1024.0
+	end
 
-	puts "Filesize #{filesize}"
-	puts "Duration: #{file_info.duration}"
-	puts file_info.format
+	pretty_filesize = filesize.round(2).to_s + ' ' + units[count]
+
+	duration = file_info.duration
+	count = 0
+	units = ['seconds','minutes','hours']
+	loop do
+		break if duration < 60
+		count += 1
+		duration /= 60
+	end
 
 
+	pretty_duration = duration.round(2).to_s + ' ' + units[count]
+
+	# puts "Filesize #{pretty_filesize}"
+	# puts "Duration: #{pretty_duration}"
+	# puts file_info.format
+
+	# abort
 	message = "|#{base_filename}|\n"
 	message+= "|---|---:|\n"
 	message+= "|File Size| **#{filesize}**|\n"
-	message+= "|Duration| **#{file_info.duration}**|\n"
+	message+= "|Duration| **#{pretty_duration}**|\n"
 	message+= "|Format| **#{file_info.format}**|";
 
 	# message = "### Gadzooks!\nWe found the file! #{base_filename} Give me a minute to generate a preview."
@@ -130,10 +150,11 @@ def generate_previews(filename, framegrab_grid='5x6', framegrab_interval=0, fram
 
 
 	# abort
-	command = "ffmpeg -y -i \"#{filename}\" -frames 1 -q:v 1 -vf \"select='isnan(prev_selected_t)+gte(t-prev_selected_t\," + framegrab_interval.to_s + ")',scale=-1:" + framegrab_height + ",tile=" + framegrab_grid + "\" '/tmp/video_preview.jpg'"
+	command = "ffmpeg -y -i \"#{filename}\" -frames 1 -q:v 1 -vf \"select='isnan(prev_selected_t)+gte(t-prev_selected_t\," + framegrab_interval.to_s + ")',scale=-1:" + framegrab_height + ",tile=" + framegrab_grid + "\" 'video_preview.jpg'"
 	puts command
-	abort
+	
 	upload_file('/tmp/video_preview.jpg', base_filename)
+
 	###
 	# if system(command)
 	# 	# Now that the preview is generated, post it to Mattermost
