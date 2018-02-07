@@ -1,6 +1,3 @@
-*.mp4
-*.MP4
-*.MOV
 video_preview_config.yaml
 
 ## MACOS GITIGNORE - https://github.com/github/gitignore/blob/master/Global/macOS.gitignore

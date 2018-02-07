@@ -1,8 +1,28 @@
-MattermostUrl: http://your.mattermost.server./hooks/your_webook_code
-WatchDirectory: '/directory/to/monitory'
+# Note: All paths and URLs should NOT end with trailing slashes. The script will handle adding them.
+
+Mattermost:
+  url: https://your.mattermost.server.com
+  webhook_code: your_webhook_code
+  username: username
+  password: password
+
 DefaultPayload:
   channel: your_channel
   username: alternate_username
   icon_url: your user's icon (optional)
-login_id: username
-password: password
+
+WebServer:
+  url: http://www.example.com
+  webroot: /var/www/html
+  preview_dir: previews
+  transcode_dir: transcodes
+
+PreviewSettings:
+  default_grid: 5x6
+  default_interval: 0 # This means it will auto detect the interval
+  default_height: 120
+
+TranscodeSettings:
+  Web: ''
+  iPhone: ''
+  Lossless: ''
