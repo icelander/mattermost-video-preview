@@ -4,6 +4,10 @@ require 'yaml'
 require 'rest_client'
 require 'mediainfo'
 require 'digest'
+require 'syslog/logger'
+
+Log = Syslog::Logger.new 'mvp'
+Log.info 'Running Mattermost Video Preview'
 
 ###
 # Configuration
@@ -30,16 +34,10 @@ def call_mattermost (data = {}, url = [Config['Mattermost']['url'], 'hooks', Con
 		payload = data
 	end
 
-	puts payload
-
-	puts "\n\n"
-
 	# Just in case, though we may not need text
 	unless payload.has_key?(:text) or payload.has_key?(:attachments)
 		payload['text'] = 'This was triggered on: ' + Time.now.strftime("%d/%m/%Y %H:%M") #Feel free to change this
 	end
-
-	RestClient.log = 'stdout'
 
 	response = RestClient.post url, payload.to_json, {content_type: :json, accept: :json}
 
@@ -128,15 +126,13 @@ def generate_previews(filename, options = {})
 			message+= "|Duration| **#{pretty_duration}**|\n"
 			message+= "|Format| **#{file_info.format}**|"
 
-			# TODO: Add buttons based on Config['FileOperations']
-
 			actions = Config['FileOperations']
 			attachments_actions = []
 			actions.keys.each do |key|
 				action_hash = {
 					'name': key,
 					'integration': {
-						'url': 'http://192.168.1.100:9000/hooks/run-command',
+						'url': [Config['Webhook']['url'], 'run-command'].join('/'),
 						'context': {
 							'command': key,
 							'filename': File.realpath(filename)
@@ -166,57 +162,75 @@ end
 
 
 def run_command(input_filename, file_operation)
-
+	Log.info "Inside run_command"
 	if !Config['FileOperations'].key?(file_operation)
 		return "#{file_operation} isn't a valid preset"
 	end
 
 	transcode_settings = Config['FileOperations'][file_operation]
 
-	if !transcode_settings.key?('command')
-		return "#{file_operation} doesn't have a command"
-	end
+	Log.info transcode_settings.to_s
 
-	command_template = transcode_settings['command']
-	filename = File.base_filename(input_filename)
-	base_filename = File.basename(input_filename, File.extname(input_filename))
+	begin
+		if !transcode_settings.key?('command')
+			return "#{file_operation} doesn't have a command"
+		end
 
-	
-	if transcode_settings.key?('location')
-		output_filename = [transcode_settings['location'], base_filename].join('/')
-	else
-		output_filename = [Config['WebServer']['webroot'], Config['WebServer']['transcode_dir'], base_filename].join('/')
-	end
+		command_template = transcode_settings['command']
+		filename = File.basename(input_filename)
+		base_filename = File.basename(input_filename, File.extname(input_filename))
 
-	command = command_template % {input_filename:input_filename, output_filename: output_filename}
+		
+		if transcode_settings.key?('location')
+			output_filename = [transcode_settings['location'], base_filename].join('/')
+		else
+			output_filename = [Config['WebServer']['webroot'], Config['WebServer']['transcode_dir'], base_filename].join('/')
+		end
 
-	# Update the channel to let them know what's happening
-	call_mattermost({:text => "Running command #{file_operation} on file #{filename}"})
+		command = command_template % {input_filename:input_filename, output_filename: output_filename}
 
-	if system(command)
-		call_mattermost({:text => "Finished running command #{file_operation} on file #{filename}"})
+		Log.info command
+
+		# Update the channel to let them know what's happening
+		call_mattermost({:text => "Running command #{file_operation} on file #{filename}"})
+
+		if system(command)
+			if transcode_settings.key?('text')
+				output_text = transcode_settings['text'] % {input_filename:input_filename, output_filename: output_filename}
+			else
+				output_text = "Finished running command #{file_operation} on file #{filename}"
+			end
+			
+			call_mattermost({:text => output_text})	
+		else
+			call_mattermost({:text => "ERROR: Could not run command #{file_operation} on file #{filename}"})
+		end
+
+	rescue Exception => e
+		Log.error e.to_s
+		return 'There was an error'
 	end
 end
 
-
 case ARGV[0]
 when 'preview'
+	Log.info 'Generating a preview'
 	if File.file?(ARGV[1])
 		generate_previews(ARGV[1])
 	else
-		puts "#{ARGV[1]} isn't a file."
+		Log.error "#{ARGV[1]} isn't a file."
 	end
 when 'run_command'
-	# webhooks passes this as json
 	request_info = JSON.parse(ARGV[1])
 	command = request_info['context']['command']
 	file = request_info['context']['filename']
 
 	if File.file?(file)
-		run_command(file, command)
+		Log.info "Running command #{command} on file #{file}"
+		Log.info run_command(file, command)
 	else
-		puts "#{file} isn't a file."
+		Log.error "#{file} isn't a file."
 	end
 else
-	puts "#{ARGV[0]} isn't a valid command"
+	Log.error "#{ARGV[0]} isn't a valid command"
 end

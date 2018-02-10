@@ -17,6 +17,9 @@ WebServer:
   preview_dir: previews
   transcode_dir: transcodes
 
+Webhook:
+  url: http://example.com/hooks
+
 PreviewSettings:
   default_grid: 5x6
   default_interval: 0 # Set to 0 to auto detect the interval based on size of grid
@@ -24,12 +27,12 @@ PreviewSettings:
 
 FileOperations:
   Web: 
-    command: 'ffmpeg -loglevel panic -i #{input_filename} -c:v libx264 -preset slow -crf 18 -c:a copy -pix_fmt yuv420p #{ouput_filename}.mp4'
+    command: 'ffmpeg -y -loglevel panic -i #{input_filename} -c:v libx264 -preset slow -crf 18 -c:a copy -pix_fmt yuv420p #{ouput_filename}.mp4'
   iPhone:
-    command: 'ffmpeg -loglevel panic  -i #{input_filename} -c:v libx265 -crf 28 -c:a aac -b:a 128k #{ouput_filename}.mp4'
+    command: 'ffmpeg -y -loglevel panic  -i #{input_filename} -c:v libx265 -crf 28 -c:a aac -b:a 128k #{ouput_filename}.mp4'
     text: '#{input_filename} has been transcoded for iOS'
   Roku:
-    command: 'ffmpeg -i #{input_filename} -acodec libfaac –ab 128 -vcodec libx264 \ -vpre roku -crf 15 -threads 0 ~/#{ouput_filename}.mp4'
+    command: 'ffmpeg -y -i #{input_filename} -acodec libfaac –ab 128 -vcodec libx264 \ -vpre roku -crf 15 -threads 0 ~/#{ouput_filename}.mp4'
     location: '/media/roku/'
   Delete:
     command: 'rm #{input_filename}'
