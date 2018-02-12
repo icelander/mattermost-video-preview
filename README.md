@@ -4,15 +4,19 @@ This Ruby script will generate preview images and clips for video files using th
 
 ![An example of the generated image](https://i.imgur.com/pY4O1Tm.jpg "An example of the generated image")
 
-You can also configure commands to run against these files in a YAML file to post process them. The default implementation includes commands for transcoding for Web, iPhone, Roku, and also deleting the file. This is great
+You can also configure commands to run against these files in a YAML file to post process them. The default implementation includes commands for transcoding for Web, iPhone, Roku, and also deleting the file.
 
 ## Dependencies
 
 To use this you'll need to install the following:
 
- - [MediaInfo](https://www.github.com/icelander/mediainfo)
- - [RestClient](https://github.com/rest-client/rest-client)
  - `ffmpeg`
+ - JSON Ruby Gem
+ - YAML Ruby Gem
+ - [RestClient](https://github.com/rest-client/rest-client) Ruby Gem
+ - My [MediaInfo](https://www.github.com/icelander/mediainfo) Ruby Gem
+ - Digest Ruby Gem
+ - Syslog/Logger Ruby Gem
 
 ## Usage Instructions
 

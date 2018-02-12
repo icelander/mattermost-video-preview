@@ -24,10 +24,7 @@ Config = YAML::load_file(__dir__ + '/video_preview_config.yaml')
 # * url is the Mattermost URL defined above. This can be overridden for debugging
 # * header is the default headers. This shouldn't need modified, but it's nice to have
 ###
-def call_mattermost (data = {}, url = [Config['Mattermost']['url'], 'hooks', Config['Mattermost']['webhook_code']].join('/'), header = {'Content-Type': 'text/json'})
-	
-	# puts data
-
+def call_mattermost (data = {}, url = [Config['Mattermost']['url'], 'hooks', Config['Mattermost']['webhook_code']].join('/'), header = {content_type: :json, accept: :json})
 	if !data.has_key?(:login_id)
 		payload = data.merge(Config['DefaultPayload'])
 	else
@@ -39,23 +36,17 @@ def call_mattermost (data = {}, url = [Config['Mattermost']['url'], 'hooks', Con
 		payload['text'] = 'This was triggered on: ' + Time.now.strftime("%d/%m/%Y %H:%M") #Feel free to change this
 	end
 
-	response = RestClient.post url, payload.to_json, {content_type: :json, accept: :json}
+	response = RestClient.post url, payload.to_json, header
 
 	return response
 end
 
-
-def get_auth_token()
-	response = call_mattermost({ :login_id => Config['Mattermost']['username'], 
-								 :password => Config['Mattermost']['password'] }, 
-								 Config['Mattermost']['url'] + '/api/v4/users/login')
-	
-	return response.headers['token']
-end
-
+##
+# upload_file - moves the file to the webserver from the config file
+# - filename: The full path of the image file
+# - video_filename: Used to generate a unique MD5 hash for each image file
+##
 def upload_file (filename, video_filename)
-	# Uploading a file in Mattermost is hard. Copying a file to a web server is easy
-
 	# new filename is the md5 of the old filename, plus "jpg"
 	new_filename = Digest::MD5.hexdigest video_filename
 	new_filename += '.jpg'
@@ -65,10 +56,15 @@ def upload_file (filename, video_filename)
 	return [Config['WebServer']['url'], Config['WebServer']['preview_dir'], new_filename].join('/')
 end
 
+##
 # Generates previews for each movie file in the transcode directory
+# - filename: The full path of the video file to output
+# - options: allows you to pass the following values for configuration. If not set they'll be pulled from your config
+# 	- framegrab_grid: (string) Something like '5x6' or '2x4' to specify the size of the grid
+# 	- framegrab_interval: (integer) The interval at which to grab frames in seconds. If set to zero it will determine it based on grid size and duration
+#   - framegrab_height: (integer) The height of the generated frames in pixels.
+##
 def generate_previews(filename, options = {})
-
-
 	framegrab_grid = options['framegrab_grid'] || Config['PreviewSettings']['default_grid']
 	framegrab_interval = options['framegrab_interval'] || Config['PreviewSettings']['default_interval']
 	framegrab_height = options['framegrab_height'] || Config['PreviewSettings']['default_height']
@@ -155,12 +151,17 @@ def generate_previews(filename, options = {})
 			call_mattermost(payload)
 		end
 	else
+		Log.error "There was an error running the command: #{command}"
 		call_mattermost({:text => "### DANGER WILL ROBINSON\nERROR"})
 	end
 
 end
 
-
+##
+# Runs the command defined in the config file
+# - input_filename: The full path of the file you want to run the command on
+# - file_operation: One of the defined file operations in the config file
+##
 def run_command(input_filename, file_operation)
 	Log.info "Inside run_command"
 	if !Config['FileOperations'].key?(file_operation)
