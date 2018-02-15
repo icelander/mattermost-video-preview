@@ -32,6 +32,8 @@ This will post a message to the specified channel with the preview image, some f
 
 ![An example of the message posted](https://i.imgur.com/CDxQ6JF.jpg "An example of the message posted")
 
+[Here's a video walkthrough of how it works](https://www.youtube.com/watch?v=MP0-Rmr2Vyk)
+
 ## Version History
 
  - **0.1.0 - Now includes actions!**

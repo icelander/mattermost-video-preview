@@ -36,7 +36,7 @@ def call_mattermost (data = {}, url = [Config['Mattermost']['url'], 'hooks', Con
 		payload['text'] = 'This was triggered on: ' + Time.now.strftime("%d/%m/%Y %H:%M") #Feel free to change this
 	end
 
-	response = RestClient.post url, payload.to_json, header
+	response = RestClient.post url, payload.to_json, {content_type: :json, accept: :json}
 
 	return response
 end
